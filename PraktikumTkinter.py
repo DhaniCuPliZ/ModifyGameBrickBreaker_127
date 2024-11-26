@@ -1,77 +1,67 @@
 import sqlite3
-from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, ttk, Scrollbar
+from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, ttk
 
 
 # Fungsi untuk membuat database dan tabel
 def create_database():
-    try:
-        conn = sqlite3.connect('nilai_siswa.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS nilai_siswa (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nama_siswa TEXT,
-                biologi INTEGER,
-                fisika INTEGER,
-                inggris INTEGER,
-                prediksi_fakultas TEXT
-            )
-        ''')
-        conn.commit()
-    finally:
-        conn.close()
+    conn = sqlite3.connect('nilai_siswa.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS nilai_siswa (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nama_siswa TEXT,
+            biologi INTEGER,
+            fisika INTEGER,
+            inggris INTEGER,
+            prediksi_fakultas TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 
 # Fungsi untuk mengambil semua data dari database
 def fetch_data():
-    try:
-        conn = sqlite3.connect('nilai_siswa.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM nilai_siswa")
-        rows = cursor.fetchall()
-    finally:
-        conn.close()
+    conn = sqlite3.connect('nilai_siswa.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM nilai_siswa")
+    rows = cursor.fetchall()
+    conn.close()
     return rows
 
 
 # Fungsi untuk menyimpan data baru ke database
 def save_to_database(nama, biologi, fisika, inggris, prediksi):
-    try:
-        conn = sqlite3.connect('nilai_siswa.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO nilai_siswa (nama_siswa, biologi, fisika, inggris, prediksi_fakultas)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (nama, biologi, fisika, inggris, prediksi))
-        conn.commit()
-    finally:
-        conn.close()
+    conn = sqlite3.connect('nilai_siswa.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO nilai_siswa (nama_siswa, biologi, fisika, inggris, prediksi_fakultas)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (nama, biologi, fisika, inggris, prediksi))
+    conn.commit()
+    conn.close()
 
 
 # Fungsi untuk memperbarui data di database
 def update_database(record_id, nama, biologi, fisika, inggris, prediksi):
-    try:
-        conn = sqlite3.connect('nilai_siswa.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE nilai_siswa
-            SET nama_siswa = ?, biologi = ?, fisika = ?, inggris = ?, prediksi_fakultas = ?
-            WHERE id = ?
-        ''', (nama, biologi, fisika, inggris, prediksi, record_id))
-        conn.commit()
-    finally:
-        conn.close()
+    conn = sqlite3.connect('nilai_siswa.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE nilai_siswa
+        SET nama_siswa = ?, biologi = ?, fisika = ?, inggris = ?, prediksi_fakultas = ?
+        WHERE id = ?
+    ''', (nama, biologi, fisika, inggris, prediksi, record_id))
+    conn.commit()
+    conn.close()
 
 
 # Fungsi untuk menghapus data dari database
 def delete_database(record_id):
-    try:
-        conn = sqlite3.connect('nilai_siswa.db')
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM nilai_siswa WHERE id = ?', (record_id,))
-        conn.commit()
-    finally:
-        conn.close()
+    conn = sqlite3.connect('nilai_siswa.db')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM nilai_siswa WHERE id = ?', (record_id,))
+    conn.commit()
+    conn.close()
 
 
 # Fungsi untuk menghitung prediksi fakultas
@@ -89,7 +79,7 @@ def calculate_prediction(biologi, fisika, inggris):
 # Fungsi untuk menangani tombol submit
 def submit():
     try:
-        nama = nama_var.get().strip()
+        nama = nama_var.get()
         biologi = int(biologi_var.get())
         fisika = int(fisika_var.get())
         inggris = int(inggris_var.get())
@@ -105,8 +95,6 @@ def submit():
         populate_table()
     except ValueError as e:
         messagebox.showerror("Error", f"Kesalahan input: {e}")
-    except Exception as e:
-        messagebox.showerror("Error", f"Kesalahan: {e}")
 
 
 # Fungsi untuk menangani tombol update
@@ -116,7 +104,7 @@ def update():
             raise Exception("Pilih data dari tabel untuk diupdate!")
 
         record_id = int(selected_record_id.get())
-        nama = nama_var.get().strip()
+        nama = nama_var.get()
         biologi = int(biologi_var.get())
         fisika = int(fisika_var.get())
         inggris = int(inggris_var.get())
@@ -132,8 +120,6 @@ def update():
         populate_table()
     except ValueError as e:
         messagebox.showerror("Error", f"Kesalahan: {e}")
-    except Exception as e:
-        messagebox.showerror("Error", f"Kesalahan: {e}")
 
 
 # Fungsi untuk menangani tombol delete
@@ -147,7 +133,7 @@ def delete():
         messagebox.showinfo("Sukses", "Data berhasil dihapus.")
         clear_input()
         populate_table()
-    except Exception as e:
+    except ValueError as e:
         messagebox.showerror("Error", f"Kesalahan: {e}")
 
 
@@ -171,7 +157,7 @@ def fill_inputs_from_table(event):
         fisika_var.set(selected_row[3])
         inggris_var.set(selected_row[4])
     except IndexError:
-        pass
+        messagebox.showerror("Error", "Pilih data yang valid!")
 
 
 # Fungsi untuk membersihkan input
@@ -217,11 +203,6 @@ Button(root, text="Delete", command=delete).grid(row=4, column=2, pady=10)
 # Tabel untuk menampilkan data
 columns = ("id", "nama_siswa", "biologi", "fisika", "inggris", "prediksi_fakultas")
 tree = ttk.Treeview(root, columns=columns, show='headings')
-
-# Menambahkan scrollbar
-scrollbar = Scrollbar(root, orient='vertical', command=tree.yview)
-tree.configure(yscroll=scrollbar.set)
-scrollbar.grid(row=5, column=3, sticky='ns', pady=10)
 
 for col in columns:
     tree.heading(col, text=col.capitalize())
