@@ -4,7 +4,7 @@ from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, ttk
 
 # Fungsi untuk membuat database dan tabel
 def create_database():
-    conn = sqlite3.connect('nilai_siswa.db')
+    conn = sqlite3.connect('nilai_siswa.db') #membuka koneksi ke file database
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS nilai_siswa (
@@ -16,8 +16,9 @@ def create_database():
             prediksi_fakultas TEXT
         )
     ''')
-    conn.commit()
-    conn.close()
+    conn.commit() #Menyimpan perubahan ke database
+    conn.close() #Menutup koneksi ke database
+
 
 
 # Fungsi untuk mengambil semua data dari database
@@ -25,7 +26,7 @@ def fetch_data():
     conn = sqlite3.connect('nilai_siswa.db')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM nilai_siswa")
-    rows = cursor.fetchall()
+    rows = cursor.fetchall() #Mengembalikan query dalam bentuk list
     conn.close()
     return rows
 
